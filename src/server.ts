@@ -1,18 +1,24 @@
 import http from "http";
 import { createAppInstance } from "./app";
-const dotenv = require('dotenv');
+import { IDatabase } from "./repositories/interfaces/IDatabase";
+import { MongoDB } from "./repositories/MongoDB";
+const dotenv = require("dotenv");
 
-
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || "development";
 dotenv.config();
 dotenv.config({ path: `.env.${env}` });
 
 const port: number = normalizePort(process.env.PORT) || 3000;
 
-console.log(env);
 export async function startServer() {
   const app = createAppInstance();
   app.set("port", port);
+
+  // Connect to the database
+  const database: IDatabase = new MongoDB(
+    process.env.MONGODB_URI || "mongodb://localhost:27017/open-fabric"
+  );
+  await database.connect();
 
   const server = http.createServer(app);
   server.listen(port);
@@ -21,7 +27,7 @@ export async function startServer() {
 }
 
 function normalizePort(val: string | undefined): number | undefined {
-  const portNumber = parseInt(val || '', 10);
+  const portNumber = parseInt(val || "", 10);
   if (isNaN(portNumber)) {
     return undefined;
   } else if (portNumber >= 0) {
@@ -55,7 +61,8 @@ function onError(error: NodeJS.ErrnoException): void {
 function onListening(server: http.Server): void {
   const addr = server.address();
   if (addr) {
-    const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`;
+    const bind =
+      typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`;
     console.log(`Listening on ${bind}`);
   }
 }
