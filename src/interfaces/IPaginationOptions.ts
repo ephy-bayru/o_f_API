@@ -4,5 +4,6 @@ export interface IPaginationOptions<T> {
     sortBy?: keyof T;
     sortOrder: 'asc' | 'desc';
     filterBy?: Partial<T>;
+    filterFn?: (item: T) => boolean;
   }
   

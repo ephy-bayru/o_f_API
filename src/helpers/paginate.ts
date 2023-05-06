@@ -6,14 +6,25 @@ export function paginate<T>(
   options: IPaginationOptions<T>,
   extractFn: (item: T) => any
 ): IPaginatedData<T> {
-  const { page, pageSize, sortBy, sortOrder = 'asc', filterBy } = options;
+  const {
+    page,
+    pageSize,
+    sortBy,
+    sortOrder = "asc",
+    filterBy,
+    filterFn,
+  } = options;
 
   // Filter the data if filterBy is specified:
-  const filteredData = filterBy
-    ? data.filter((item) =>
-        Object.entries(filterBy).every(([key, value]) => (item as any)[key] === value)
-      )
-    : data;
+  const filteredData = data.filter((item) => {
+    return (
+      (!filterBy ||
+        Object.entries(filterBy).every(
+          ([key, value]) => (item as any)[key] === value
+        )) &&
+      (!filterFn || filterFn(item)) // Use custom filter function if provided
+    );
+  });
 
   // Sort the data if sortBy is specified:
   let sortedData = filteredData.slice();
@@ -21,13 +32,13 @@ export function paginate<T>(
     sortedData.sort((a, b) => {
       const valueA = a[sortBy];
       const valueB = b[sortBy];
-      if (typeof valueA === 'string' && typeof valueB === 'string') {
-        return sortOrder === 'asc'
+      if (typeof valueA === "string" && typeof valueB === "string") {
+        return sortOrder === "asc"
           ? valueA.localeCompare(valueB)
           : valueB.localeCompare(valueA);
       }
-      if (typeof valueA === 'number' && typeof valueB === 'number') {
-        return sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
+      if (typeof valueA === "number" && typeof valueB === "number") {
+        return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
       }
       return 0;
     });
