@@ -3,7 +3,11 @@ import cors from "cors";
 import helmet from "helmet";
 import bodyParser from "body-parser";
 import errorMiddleware from "./middlewares/error.middleware";
+import routes from "./routes/index";
 import logger from "./utils/logger.util";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import swaggerOptions from "../swaggerConfig";
 
 export function createAppInstance(): Express {
   const app = express();
@@ -19,8 +23,16 @@ export function createAppInstance(): Express {
     logger.info(`${req.method} ${req.url}`);
     next();
   });
-  
+
+  // Swagger setup
+  const swaggerSpec = swaggerJsdoc(swaggerOptions);
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
   // Routes
+  app.use("/api", routes);
+  app.get("", (req, res) => {
+    res.redirect("");
+  });
 
   // Universal route
   app.use((req, res) => {
