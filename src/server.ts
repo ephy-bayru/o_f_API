@@ -2,6 +2,7 @@ import http from "http";
 import { createAppInstance } from "./app";
 import { IDatabase } from "./repositories/interfaces/IDatabase";
 import { MongoDB } from "./repositories/MongoDB";
+import seedDatabase from "./middlewares/seedData.middleware";
 const dotenv = require("dotenv");
 
 const env = process.env.NODE_ENV || "development";
@@ -19,6 +20,9 @@ export async function startServer() {
     process.env.MONGODB_URI || "mongodb://localhost:27017/open-fabric"
   );
   await database.connect();
+
+  // Uncomment the following line when you want to seed the database
+  // await seedDatabase();
 
   const server = http.createServer(app);
   server.listen(port);
