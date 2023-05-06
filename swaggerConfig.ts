@@ -1,3 +1,5 @@
+import { productsSwaggerDefinitions, productsSwaggerPaths } from "./src/components/products/v1/web/products.swagger";
+
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -13,12 +15,15 @@ const swaggerOptions = {
     ],
     components: {
       schemas: {
+        ...productsSwaggerDefinitions,
       },
     },
     paths: {
+      ...productsSwaggerPaths,
     },
   },
   apis: [
+    "./src/components/products/v1/web/products.routes.ts",
     "./src/components/health/v1/health.routes.ts",
   ],
 };
