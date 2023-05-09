@@ -1,9 +1,16 @@
 import { Request, Response } from "express";
 import ResponseHandler from "../../../../helpers/httpResponse.helper";
-import { ICreateProduct, IProduct, IProductResponse } from "../data/interfaces/IProduct";
+import {
+  ICreateProduct,
+  IProduct,
+  IProductResponse,
+} from "../data/interfaces/IProduct";
 import { addLinks, addLinksToList } from "../../../../utils/hateoas.util";
 import { ProductService } from "../services/products.service";
-import { getPaginationData, getPaginationOptions } from "../../../../helpers/pagination.helper";
+import {
+  getPaginationData,
+  getPaginationOptions,
+} from "../../../../helpers/pagination.helper";
 
 export class ProductsController {
   private readonly productService: ProductService;
@@ -54,8 +61,8 @@ export class ProductsController {
       } else {
         ResponseHandler.sendNotFound(res, "Product not found");
       }
-    } catch (error) {
-      ResponseHandler.sendInternalServerError(res, error);
+    } catch (error: any) {
+      ResponseHandler.sendInternalServerError(res, error.message, error.stack);
     }
   }
 
@@ -84,7 +91,10 @@ export class ProductsController {
     try {
       const productId = req.params.id;
       const updatedProduct = req.body as Partial<IProduct>;
-      const product = await this.productService.updateProduct(productId, updatedProduct);
+      const product = await this.productService.updateProduct(
+        productId,
+        updatedProduct
+      );
       if (product) {
         const productWithLinks = addLinks(
           product,
@@ -93,7 +103,11 @@ export class ProductsController {
         );
 
         const message = `Product with ID ${productId} updated successfully`;
-        ResponseHandler.sendSuccess<ICreateProduct>(res, productWithLinks, message);
+        ResponseHandler.sendSuccess<ICreateProduct>(
+          res,
+          productWithLinks,
+          message
+        );
       } else {
         ResponseHandler.sendNotFound(res, "Product not found");
       }
@@ -108,7 +122,11 @@ export class ProductsController {
       const deletedProduct = await this.productService.deleteProduct(productId);
       if (deletedProduct) {
         const message = `Product with ID ${productId} deleted successfully`;
-        ResponseHandler.sendSuccess<IProductResponse>(res, deletedProduct, message);
+        ResponseHandler.sendSuccess<IProductResponse>(
+          res,
+          deletedProduct,
+          message
+        );
       } else {
         ResponseHandler.sendNotFound(res, "Product not found");
       }
@@ -116,20 +134,23 @@ export class ProductsController {
       ResponseHandler.sendBadRequest(res, error.message);
     }
   }
-  
+
   public async searchProducts(req: Request, res: Response): Promise<void> {
     try {
       const query = req.query.query as string;
       const options = getPaginationOptions(req);
-      const paginatedData = await this.productService.searchProducts(query, options);
+      const paginatedData = await this.productService.searchProducts(
+        query,
+        options
+      );
       const pagination = getPaginationData(options, paginatedData.totalCount);
-  
+
       const productsWithLinks = addLinksToList(
         paginatedData.data,
         ["GET", "PUT", "DELETE"],
         (product) => `/products/${product._id}`
       );
-  
+
       ResponseHandler.sendSuccess(
         res,
         {
@@ -143,5 +164,4 @@ export class ProductsController {
       ResponseHandler.sendInternalServerError(res, "Internal server error");
     }
   }
-  
 }
