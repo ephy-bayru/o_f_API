@@ -1,4 +1,4 @@
-import { FilterQuery, Model, Document } from 'mongoose';
+import { FilterQuery, Model, Document, Types } from 'mongoose';
 import { ObjectId } from 'bson';
 import IBaseRepository from './interfaces/IBaseRepository';
 
@@ -13,10 +13,14 @@ class BaseRepository<T extends Document> implements IBaseRepository<T> {
     return this._model;
   }
 
-  async create(entity: T): Promise<T> {
-    const newEntity = new this.model(entity);
+  async create(entity: Partial<T>): Promise<T> {
+    const newEntity = new this.model({
+      ...entity,
+      _id: new Types.ObjectId(),
+    });
     return await newEntity.save();
   }
+  
 
   async updateById(id: ObjectId, entity: Partial<T>): Promise<T | null> {
     return await this.model.findByIdAndUpdate(id, entity, { new: true });
