@@ -1,3 +1,4 @@
+import { authSwaggerDefinitions, authSwaggerPaths } from "./src/components/auth/v1/web/auth.swagger";
 import { productsSwaggerDefinitions, productsSwaggerPaths } from "./src/components/products/v1/web/products.swagger";
 
 const swaggerOptions = {
@@ -16,15 +17,18 @@ const swaggerOptions = {
     components: {
       schemas: {
         ...productsSwaggerDefinitions,
+        ...authSwaggerDefinitions,
       },
     },
     paths: {
       ...productsSwaggerPaths,
+      ...authSwaggerPaths,
     },
   },
   apis: [
     "./src/components/products/v1/web/products.routes.ts",
     "./src/components/health/v1/health.routes.ts",
+    "./src/components/auth/v1/web/auth.routes.ts",
   ],
 };
 
