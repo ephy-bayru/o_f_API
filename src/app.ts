@@ -1,3 +1,4 @@
+import { rateLimit } from 'express-rate-limit';
 import express, { Express, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -8,11 +9,13 @@ import logger from "./utils/logger.util";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import swaggerOptions from "../swaggerConfig";
+import { reteLimiter } from "./middlewares/rateLimit.middleware";
 
 export function createAppInstance(): Express {
   const app = express();
 
   // Middleware
+  app.use(reteLimiter);
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(cors());
@@ -30,8 +33,8 @@ export function createAppInstance(): Express {
 
   // Routes
   app.use("/api", routes);
-  app.get("", (req, res) => {
-    res.redirect("");
+  app.get("/", (req, res) => {
+    res.redirect("/api/products");
   });
 
   // Universal route
