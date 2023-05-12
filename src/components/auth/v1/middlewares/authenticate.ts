@@ -5,6 +5,7 @@ import ResponseHandler from "../../../../helpers/httpResponse.helper";
 import { UserRole } from "../data/interfaces/IUser";
 import { CustomRequest } from "../../../../utils/customRequest";
 import { BlacklistedTokenModel } from "../data/interfaces/blacklistedTokenModel";
+import jwtConfig from "../../../../config/jwt/jwtConfig";
 
 interface TokenPayload {
   id: string;
@@ -36,12 +37,12 @@ export async function authenticate(
   }
 
   try {
-    if (!process.env.JWT_SECRET) {
+    const jwtSecret = process.env.JWT_SECRET || jwtConfig.accessToken.secret || "secret";
+    if (!jwtSecret) {
       ResponseHandler.sendBadRequest(res, "JWT_SECRET is not set");
       return;
     }
 
-    const jwtSecret = process.env.JWT_SECRET || "secret";
     const decoded = jwt.verify(token, jwtSecret) as unknown as TokenPayload;
 
     const isTokenBlacklisted = await checkIfTokenIsBlacklisted(token);
